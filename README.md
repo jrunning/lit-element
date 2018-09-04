@@ -6,96 +6,143 @@
 [![Published on npm](https://img.shields.io/npm/v/@polymer/lit-element.svg)](https://www.npmjs.com/package/@polymer/lit-element)
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/@polymer/lit-element)
 
-## A simple base class for creating custom elements rendered with lit-html.
+## A simple base class for creating custom elements rendered with lit-html
 
 LitElement uses [lit-html](https://github.com/Polymer/lit-html) to render into the
 element's [Shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM)
 and adds API to help manage element properties and attributes. LitElement reacts to changes in properties
 and renders declaratively using `lit-html`.
 
-  * **Setup properties:** LitElement supports observable properties that cause the element to update.
-  These properties can be declared in a few ways:
+### Setup properties
 
-    * As class fields with the `@property()` [decorator](https://github.com/tc39/proposal-decorators#decorators),
-    if you're using a compiler that supports them, like [TypeScript](https://www.typescriptlang.org/) or [Babel](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
-    * With a static `properties` getter.
-    * By manually writing getters and setters. This can be useful if tasks should
-    be performed when a property is set, for example validation. Call `requestUpdate(name, oldValue)`
-    in the setter to trigger an update and use any configured property options.
+LitElement supports observable properties that cause the element to update. These properties can be
+declared in a few ways:
 
-    Properties can be given an options argument which is an object that describes how to
-    process the property. This can be done either in the `@property({...})` decorator or in the
-    object returned from the `properties` getter, e.g. `static get properties { return { foo: {...} }`.
+  - As class fields with the `@property()` [decorator](https://github.com/tc39/proposal-decorators#decorators),
+    if you're using a compiler that supports them, like [TypeScript](https://www.typescriptlang.org/)
+    or [Babel](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
 
-    Property options include:
+  - With a static `properties` getter.
+ 
+  - By manually writing getters and setters. This can be useful if tasks should be performed when a
+    property is set, for example validation. Call `requestUpdate(name, oldValue)` in the setter to
+    trigger an update and use any configured property options.
 
-    * `attribute`: Indicates how and whether the property becomes an observed attribute.
-    If the value is `false`, the property is not added to `observedAttributes`.
-    If true or absent, the lowercased property name is observed (e.g. `fooBar` becomes `foobar`).
-    If a string, the string value is observed (e.g `attribute: 'foo-bar'`).
-    * `type`: Indicates how to serialize and deserialize the attribute to/from a property.
-    If this value is a function, it is used to deserialize the attribute value
-    a the property value. If it's an object, it can have keys for `fromAttribute` and
-    `toAttribute` where `fromAttribute` is the deserialize function and `toAttribute`
-    is a serialize function used to set the property to an attribute. If no `toAttribute`
-    function is provided and `reflect` is set to `true`, the property value is set
-    directly to the attribute.
-    * `reflect`: Indicates if the property should reflect to an attribute.
-    If `true`, when the property is set, the attribute is set using the
-    attribute name determined according to the rules for the `attribute`
-    property option and the value of the property serialized using the rules from
-    the `type` property option.
-    * `hasChanged`: A function that indicates if a property should be considered
-    changed when it is set. The function should take the `newValue` and `oldValue`
-    and return `true` if an update should be requested.
+#### Property options
 
-  * **React to changes:** LitElement reacts to changes in properties and attributes by
-  asynchronously rendering, ensuring changes are batched. This reduces overhead
-  and maintains consistent state.
+Properties can be given an options argument which is an object that describes how to process the
+property. This can be done either in the `@property({...})` decorator or in the object returned from
+the `properties` getter, e.g. `static get properties { return { foo: {...} }`.
 
-  * **Declarative rendering** LitElement uses `lit-html` to declaratively describe
-  how an element should render. Then `lit-html` ensures that updates
-  are fast by creating the static DOM once and smartly updating only the parts of
-  the DOM that change. Pass a JavaScript string to the `html` tag function,
-  describing dynamic parts with standard JavaScript template expressions:
+Property options include:
 
-    * static elements: ``` html`<div>Hi</div>` ```
-    * expression: ``` html`<div>${disabled ? 'Off' : 'On'}</div>` ```
-    * property: ``` html`<x-foo .bar="${bar}"></x-foo>` ```
-    * attribute: ``` html`<div class="${color} special"></div>` ```
-    * event handler: ``` html`<button @click="${(e) => this._clickHandler(e)}"></button>` ```
+  * **`attribute` (boolean):** Indicates how and whether the property becomes an observed attribute.
+    If the value is `false`, the property is not added to `observedAttributes`. If `true` or absent,
+    the lowercased property name is observed (e.g. `fooBar` becomes `foobar`). If a string, the
+    string value is observed (e.g `attribute: 'foo-bar'`).
+    
+  * **`type` (function|object):** Indicates how to serialize and deserialize the attribute to and
+    from a property.
+    
+    If `type` is a function, it will be called with the string value of the attribute to be
+    deserialized into the property value.
+  
+    If `type` is an object, it can have keys for `fromAttribute` and `toAttribute` where
+    `fromAttribute` is a deserialize function and `toAttribute` is a serialize function used to set
+    the property to an attribute. If no `toAttribute` function is provided and `reflect` is set to
+    `true`, the property value is set directly to the attribute.
 
-## Getting started
+  * **`reflect` (boolean):** Indicates if the property should reflect to an attribute. If `true`,
+    when the property is set, the attribute is set using the attribute name determined according to
+    the rules for the `attribute` property option and the value of the property serialized using the
+    rules from the `type` property option.
 
- * The easiest way to try out LitElement is to use one of these online tools:
+  * **`hasChanged` (function):** A function that indicates if a property should be considered
+    changed when it is set. The function should take the `newValue` and `oldValue` and return `true`
+    if an update should be requested.
 
-    * Runs in all [supported](#supported-browsers) browsers: [StackBlitz](https://stackblitz.com/edit/lit-element-example?file=index.js), [Glitch](https://glitch.com/edit/#!/hello-lit-element?path=index.html)
+### React to changes
 
-    * Runs in browsers with [JavaScript Modules](https://caniuse.com/#search=modules): [JSFiddle](https://jsfiddle.net/j6mf6gpo/), [JSBin](http://jsbin.com/zezilad/edit?html,output),
- [CodePen](https://codepen.io/sorvell/pen/BxZgPN).
+LitElement reacts to changes in properties and attributes by asynchronously rendering, ensuring
+changes are batched. This reduces overhead and maintains consistent state.
 
- * You can also copy [this HTML file](https://gist.githubusercontent.com/sorvell/48f4b7be35c8748e8f6db5c66d36ee29/raw/2427328cf1ebae5077902a6bff5ddd8db45e83e4/index.html) into a local file and run it in any browser that supports [JavaScript Modules]((https://caniuse.com/#search=modules)).
+### Declarative rendering
 
- * When you're ready to use LitElement in a project, install it via [npm](https://www.npmjs.com/). To run the project in the browser, a module-compatible toolchain is required. We recommend installing the [Polymer CLI](https://github.com/Polymer/polymer-cli) and using its development server as follows.
+LitElement uses `lit-html` to declaratively describe how an element should render. Then `lit-html`
+ensures that updates are fast by creating the static DOM once and smartly updating only the parts of
+the DOM that change. Pass a string to the `html` tag function, describing dynamic parts with
+standard JavaScript template expressions:
 
-    1. Add LitElement to your project:
+  * Static elements
+    ```js
+    html`<div>Hi</div>`
+    ```
 
-        ```npm i @polymer/lit-element```
+  * Expressions
+    ```js
+    html`<div>${disabled ? 'Off' : 'On'}</div>`
+    ```
+    
+  * Properties
+    ```js
+    html`<x-foo .bar="${bar}"></x-foo>`
+    ```
+    
+  * Attributes
+    ```js
+    html`<div class="${color} special"></div>`
+    ```
+    
+  * Event handlers
+     ```js
+     html`<button @click="${(e) => this._clickHandler(e)}"></button>`
+     ```
 
-    1. Install the webcomponents polyfill. If you're developing a reusable package, this should be a dev dependency which you load in your tests, demos, etc.
+## Try LitElement
 
-        ```npm i -D @webcomponents/webcomponentsjs```
+The easiest way to try out LitElement is to use one of these online tools:
 
+  * Runs in all [supported](#supported-browsers) browsers:
+    [StackBlitz](https://stackblitz.com/edit/lit-element-example?file=index.js),
+    [Glitch](https://glitch.com/edit/#!/hello-lit-element?path=index.html)
 
-    1. Create an element by extending LitElement and calling `customElements.define` with your class (see the examples below).
+  * Runs in browsers with [JavaScript Modules](https://caniuse.com/#search=modules):
+    [JSFiddle](https://jsfiddle.net/j6mf6gpo/), [JSBin](http://jsbin.com/zezilad/edit?html,output),
+    [CodePen](https://codepen.io/sorvell/pen/BxZgPN).
 
-    1. Install the Polymer CLI:
+  * You can also copy [this HTML file](https://gist.githubusercontent.com/sorvell/48f4b7be35c8748e8f6db5c66d36ee29/raw/2427328cf1ebae5077902a6bff5ddd8db45e83e4/index.html)
+    into a local file and run it in any browser that supports [JavaScript Modules]((https://caniuse.com/#search=modules)).
 
-        ```npm i -g polymer-cli```
+## Getting Started
 
-    1. Run the development server and open a browser pointing to its URL:
+When you're ready to use LitElement in a project, install it via [npm](https://www.npmjs.com/). To
+run the project in the browser, a module-compatible toolchain is required. We recommend installing
+the [Polymer CLI](https://github.com/Polymer/polymer-cli) and using its development server
+as follows:
 
-        ```polymer serve```
+  1. Add LitElement to your project:
+     ```sh
+     npm i @polymer/lit-element
+     ```
+
+  2. Install the webcomponents polyfill. If you're developing a reusable package, this should be a
+     dev dependency which you load in your tests, demos, etc.
+     ```sh
+     npm i -D @webcomponents/webcomponentsjs
+     ```
+
+  3. Create an element by extending LitElement and calling `customElements.define` with your class
+     (see the examples below).
+
+  4. Install the Polymer CLI:
+     ```sh
+     npm i -g polymer-cli
+     ```
+
+  5. Run the development server and open a browser pointing to its URL:
+     ```sh
+     polymer serve
+     ```
 
     > LitElement is published on [npm](https://www.npmjs.com/package/@polymer/lit-element) using JavaScript Modules.
     This means it can take advantage of the standard native JavaScript module loader available in all current major browsers.
@@ -104,122 +151,146 @@ and renders declaratively using `lit-html`.
 
     Tools like [WebPack](https://webpack.js.org/) and [Rollup](https://rollupjs.org/) can also be used to serve and/or bundle LitElement.
 
-
 ## Minimal Example
 
-  1. Create a class that extends `LitElement`.
-  1. Use a `@property` decorator to create a property (or implement a static `properties`
-  getter that returns the element's properties). (which automatically become observed attributes).
-  1. Then implement a `render()` method and use the element's
-current properties to return a `lit-html` template result to render
-into the element. This is the only method that must be implemented by subclasses.
+ 1. Create a class that extends `LitElement`.
+
+ 2. Use a `@property` decorator to declare properties, or implement a static `properties` getter
+     that returns the element's properties (which automatically become observed attributes).
+
+ 3. Implement a `render()` method and use the element's current properties to return a `lit-html`
+    template result to render into the element. This is the only method that must be implemented by
+    subclasses.
 
 ```html
-  <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-  <script type="module">
-    import {LitElement, html, property} from '@polymer/lit-element';
+<script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+<script type="module">
+  import {LitElement, html, property} from '@polymer/lit-element';
 
-    class MyElement extends LitElement {
+  class MyElement extends LitElement {
 
-      static get properties() {
-        return {
-          mood: {type: String}
-        };
-      }
-
-      constructor() {
-        super();
-        this.mood = 'happy';
-      }
-
-      render() {
-        return html`<style> .mood { color: green; } </style>
-          Web Components are <span class="mood">${this.mood}</span>!`;
-      }
-
+    static get properties() {
+      return {
+        mood: {type: String}
+      };
     }
 
-    customElements.define('my-element', MyElement);
-  </script>
+    constructor() {
+      super();
+      this.mood = 'happy';
+    }
 
-  <my-element mood="happy"></my-element>
+    render() {
+      return html`<style> .mood { color: green; } </style>
+        Web Components are <span class="mood">${this.mood}</span>!`;
+    }
+
+  }
+
+  customElements.define('my-element', MyElement);
+</script>
+
+<my-element mood="happy"></my-element>
 ```
 
 ## API Documentation
 
-  * `render()` (protected): Implement to describe the element's DOM using `lit-html`. Ideally,
-  the `render` implementation is a [pure function](https://en.wikipedia.org/wiki/Pure_function) using only the element's current properties
-  to describe the element template. This is the only method that must be implemented by subclasses.
-  Note, since `render()` is called by `update()`, setting properties does not trigger
-  an update, allowing property values to be computed and validated.
+Classes that extend LitElement can implement the following to hook into LitElement's lifecyle:
 
-  * `shouldUpdate(changedProperties)` (protected): Implement to control if updating and rendering
-  should occur when property values change or `requestUpdate()` is called. The `changedProperties`
-  argument is a Map with keys for the changed properties pointing to their previous values.
-  By default, this method always returns `true`, but this can be customized as
-  an optimization to avoid updating work when changes occur, which should not be rendered.
+#### `render()` (protected)
 
-  * `update(changedProperties)` (protected): This method calls `render()` and then uses `lit-html`
-  in order to render the template DOM. It also updates any reflected attributes based on
-  property values. Setting properties inside this method will *not* trigger another update.
+<!--=============================================================================================-->
+Implement to describe the element's DOM using `lit-html`. Ideally, the `render` implementation is a
+[pure function](https://en.wikipedia.org/wiki/Pure_function) using only the element's current
+properties to describe the element template. This is the only method that must be implemented by
+subclasses.
 
-  * `firstUpdated(changedProperties)`: (protected) Called after the element's DOM has been
-  updated the first time, immediately before `updated()` is called.
-  This method can be useful for capturing references to rendered static nodes that
-  must be directly acted upon, for example in `updated()`.
-  Setting properties inside this method will trigger the element to update.
+Note, since `render()` is called by `update()`, setting properties does not trigger an update,
+allowing property values to be computed and validated.
 
-  * `updated(changedProperties)`: (protected) Called whenever the element's DOM has been
-  updated and rendered. Implement to perform post updating tasks via DOM APIs, for example,
-  focusing an element. Setting properties inside this method will trigger the element to update.
+#### `shouldUpdate(changedProperties)` (protected)
 
-  * `updateComplete`: Returns a Promise that resolves when the element has completed
-  updating. The Promise value is a boolean that is `true` if the element completed the
-  update without triggering another update. The Promise result is `false` if a
-  property was set inside `updated()`. This getter can be implemented to await additional state.
-  For example, it is sometimes useful to await a rendered element before fulfilling
-  this Promise. To do this, first await `super.updateComplete` then any subsequent state.
+Implement to control if updating and rendering should occur when property values change or
+`requestUpdate()` is called. The `changedProperties` argument is a Map with keys for the changed
+properties pointing to their previous values. By default, this method always returns `true`, but
+this can be customized as an optimization to avoid updating work when changes occur, which should
+not be rendered.
 
-  * `requestUpdate(name?, oldValue?)`: Call to request the element to asynchronously
-  update regardless of whether or not any property changes are pending. This should
-  be called when an element should update based on some state not triggered
-  by setting a property. In this case, pass no arguments. It should also be called
-  when manually implementing a property setter. In this case, pass the property
-  `name` and `oldValue` to ensure that any configured property options are honored.
-  Returns the `updateComplete` Promise which is resolved when the update completes.
+#### `update(changedProperties)` (protected)
 
-  * `createRenderRoot()` (protected): Implement to customize where the
-  element's template is rendered by returning an element into which to
-  render. By default this creates a shadowRoot for the element.
-  To render into the element's childNodes, return `this`.
+This method calls `render()` and then uses `lit-html` in order to render the template DOM. It also
+updates any reflected attributes based on property values. Setting properties inside this method
+will *not* trigger another update.
+
+#### `firstUpdated(changedProperties)` (protected)
+
+Called after the element's DOM has been updated the first time, immediately before `updated()` is
+called. This method can be useful for capturing references to rendered static nodes that must be
+directly acted upon, for example in `updated()`. Setting properties inside this method will trigger
+the element to update.
+
+#### `updated(changedProperties)` (protected)
+
+Called whenever the element's DOM has been updated and rendered. Implement to perform post updating
+tasks via DOM APIs, for example, focusing an element. Setting properties inside this method will
+trigger the element to update.
+
+#### `updateComplete`
+
+Returns a Promise that resolves when the element has completed updating. The Promise value is a
+boolean that is `true` if the element completed the update without triggering another update. The
+Promise result is `false` if a property was set inside `updated()`. This getter can be implemented
+to await additional state. For example, it is sometimes useful to await a rendered element before
+fulfilling this Promise. To do this, first await `super.updateComplete` then any subsequent state.
+
+#### `requestUpdate(name?, oldValue?)`
+
+Call to request the element to asynchronously update regardless of whether or not any property
+changes are pending. This should be called when an element should update based on some state not
+triggered by setting a property. In this case, pass no arguments. It should also be called when
+manually implementing a property setter. In this case, pass the property `name` and `oldValue` to
+ensure that any configured property options are honored. Returns the `updateComplete` Promise which
+is resolved when the update completes.
+
+#### `createRenderRoot()` (protected)
+
+Implement to customize where the element's template is rendered by returning an element into which
+to render. By default this creates a shadowRoot for the element. To render into the element's
+`childNodes`, return `this`.
 
 ## Advanced: Update Lifecycle
 
-* A property is set (e.g. `element.foo = 5`).
-* If the property's `hasChanged(value, oldValue)` returns `false`, the element does not
-update. If it returns `true`, `requestUdpate()` is called to schedule an update.
-* `requestUpdate()`: Updates the element after awaiting a [microtask](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) (at the end
-of the event loop, before the next paint).
-* `shouldUpdate(changedProperties)`: The update proceeds if this returns `true`, which
-it does by default.
-* `update(changedProperties)`: Updates the element. Setting properties inside this
-method will *not* trigger another update.
-  * `render()`: Returns a `lit-html` TemplateResult (e.g. <code>html\`Hello ${world}\`</code>)
-  to render element DOM. Setting properties inside this method will *not* trigger
-  the element to update.
-* `firstUpdated(changedProperties)`: Called after the element is updated the first time,
-immediately before `updated` is called. Setting properties inside this method will
-trigger the element to update.
-* `updated(changedProperties)`: Called whenever the element is updated.
-Setting properties inside this method will trigger the element to update.
-* `updateComplete` Promise is resolved with a boolean that is `true` if the
-element is not pending another update, and any code awaiting the element's
-`updateComplete` Promise runs and observes the element in the updated state.
+ 1. A property is set (e.g. `element.foo = 5`).
+ 
+ 2. If the property's **`hasChanged(value, oldValue)`** returns `false`, the element does not
+    update. If it returns `true`, `requestUpdate()` is called to schedule an update.
+
+ 3. **`requestUpdate()`** updates the element after awaiting a [microtask](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
+    (at the end of the event loop, before the next paint).
+    
+ 4. If **`shouldUpdate(changedProperties)`** returns `true` (which it does by default), the update
+    proceeds.
+
+ 5. **`update(changedProperties)`** updates the element. Setting properties inside this method will
+    *not* trigger another update.
+
+    * **`render()`** returns a `lit-html` TemplateResult (e.g. ``html`Hello ${world}` ``) to render
+      element DOM. Setting properties inside this method will *not* trigger the element to update.
+
+ 6. **`firstUpdated(changedProperties)`** is called after the element is updated the first time,
+    immediately before `updated` is called. Setting properties inside this method will trigger the
+    element to update.
+
+ 7. **`updated(changedProperties)`** is called whenever the element is updated. Setting properties
+    inside this method will trigger the element to update.
+
+ 8. The **`updateComplete`** Promise is resolved with `true` if the element is not pending another
+    update, and any code awaiting the Promise runs and observes the element in the updated state.
 
 ## Bigger Example
 
-Note, this example uses decorators to create properties. Decorators are a proposed
-standard currently available in [TypeScript](https://www.typescriptlang.org/) or [Babel](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
+Note, this example uses decorators to create properties. Decorators are a proposed standard
+currently available in [TypeScript](https://www.typescriptlang.org/) or [Babel](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).
 
 ```ts
 import {LitElement, html, property} from '@polymer/lit-element';
@@ -264,13 +335,10 @@ customElements.define('my-element', MyElement);
 ```
 
 ```html
-  <my-element whales="5">hi</my-element>
+<my-element whales="5">hi</my-element>
 ```
 
 ## Supported Browsers
 
-The last 2 versions of all modern browsers are supported, including
-Chrome, Safari, Opera, Firefox, Edge. In addition, Internet Explorer 11 is also supported.
-
-## Known Issues
-
+The last 2 versions of all modern browsers are supported, including Chrome, Safari, Opera, Firefox,
+Edge. In addition, Internet Explorer 11 is also supported.
